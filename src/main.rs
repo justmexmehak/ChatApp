@@ -5,7 +5,7 @@ pub mod room;
 pub mod handle_client_request;
 pub mod handle_server_response;
 
-use std::{env, net::{TcpListener, TcpStream}, thread, io::{self, BufReader, BufRead, Read, Write}, sync::{Arc, Mutex, MutexGuard}, str};
+use std::{env, net::{TcpListener, TcpStream}, thread, io::{Read, Write}, sync::{Arc, Mutex}, str};
 use std::collections::HashMap;
 use std::error::Error;
 
@@ -60,7 +60,10 @@ fn handle_connection(mut stream: TcpStream, active_clients: Arc<Mutex<Vec<TcpStr
         println!("{:?}", req);
         let response = handle_client_request::handle_request(req, rooms.lock().unwrap(), &stream, active_clients.lock().unwrap())?;
         println!("{:?}", response);
-        // stream.write(send)?;
+
+        let response = serialize(&response).expect("Serialization Failed");
+        let response = format!("{}\n", str::from_utf8(&response).unwrap());
+        stream.write(&response.as_bytes())?;
 
         // let text = std::str::from_utf8(&send).expect("did not get");
         // match &text[0..1] {

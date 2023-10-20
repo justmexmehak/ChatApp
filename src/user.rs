@@ -1,27 +1,52 @@
 use std::net::TcpStream;
-use std::sync::{Arc, Mutex};
 use std::thread;
 use std::io::{self, BufRead, BufReader, Write};
 
 use crate::handle_client_request::RequestType;
+use crate::handle_server_response::Response;
 use crate::ui;
 use crate::user_input;
 
+
 // use crate::handle_client_request::RequestType;
 
-use bincode::serialize;
+use bincode::{serialize, deserialize};
 
 pub fn user_tcp() {
     // implement client logic
     let mut stream = TcpStream::connect("127.0.0.1:7878").expect("Failed to connect to the server");
 
-    ui::header();
+    // let mut buf = [0; 512];
 
-    ui::category_prompt();
-    let choice = user_input::get_category_input();
-    println!("{:?}", choice);
+    
+    
+    loop {
 
-    stream.write(&serialize(&choice).unwrap()).unwrap();
+        ui::header();
+
+        ui::category_prompt();
+        let choice = user_input::get_category_input();
+        // println!("{:?}", choice);
+
+        stream.write(&serialize(&choice).unwrap()).unwrap();
+
+        let mut reader = BufReader::new(&stream);
+        let mut buffer = String::new();
+        reader.read_line(&mut buffer).expect("Could not read into buffer");
+        // print!("{}", buffer);
+        // let req: RequestType = deserialize(&send).expect("Deserialization failed!");
+        let response: Response = deserialize(buffer.as_bytes()).expect("Deserialization failed!");
+        // println!("{:?}", response);
+        match response.code {
+            0 => {
+                // println!("Successsss");
+                println!("{}", response.message);
+                break
+            },
+            _ => println!("{}", response.message),
+        }
+
+    }
     
 
     loop {

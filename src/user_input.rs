@@ -1,7 +1,7 @@
 use std::io;
 use crate::handle_client_request::RequestType;
 
-// ub enum RequestType {
+// pub enum RequestType {
 //     CreateRoom(String, String),
 //     JoinRoom(String, String),
 //     SendMessage(String, String)
@@ -12,7 +12,7 @@ pub fn get_category_input() -> RequestType {
     match choice_input(1, 2) {
         1 => {
             let req = RequestType::CreateRoom(get_room_name(), get_username());
-            println!("{:?}", req);
+            // println!("{:?}", req);
             req
         },
         2 => {
@@ -26,7 +26,7 @@ fn get_username() -> String {
     println!("Enter User Name: ");
     let mut name = String::new();
     io::stdin().read_line(&mut name).expect("Failed to get username");
-    println!("{}", name);
+    // println!("{}", name);
     name.trim().to_string()
 }
 
@@ -34,7 +34,7 @@ fn get_room_name() -> String {
     println!("Enter Room Name: ");
     let mut id = String::new();
     io::stdin().read_line(&mut id).expect("Failed to get room name").to_string();
-    println!("{}", id);
+    // println!("{}", id);
     id.trim().to_string()
 }
 

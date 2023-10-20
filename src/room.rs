@@ -2,6 +2,7 @@ use std::net::SocketAddr;
 
 // use std::sync::{Arc, Mutex};
 
+#[allow(dead_code)]
 pub struct Room {
     room_name: String,
     members: Vec<SocketAddr>,
@@ -14,6 +15,7 @@ impl Room {
     pub fn new(room_name: String, addr: SocketAddr) -> Room {
         let members = vec![addr];
         println!("Created Room {}", room_name);
+        
         Room {
             room_name,
             members,

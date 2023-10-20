@@ -6,6 +6,7 @@ use crate::room::Room;
 use crate::handle_server_response::Response;
 
 use std::error::Error;
+use std::str;
 
 // use serde_derive;
 // use serde;
@@ -52,7 +53,9 @@ pub fn handle_request(
                 None => return Ok(Response { code: 1, message: "Room does not exist".to_string()})
             };
             match room.join_room(stream.peer_addr()?) {
-                Ok(()) => return Ok(Response { code: 0, message: format!("Joined Room {} successfully!", room_name).to_string() }),
+                Ok(()) => {
+                    return Ok(Response { code: 0, message: format!("Joined Room {} successfully!", room_name).to_string() });
+                },
                 Err(()) => return Ok(Response { code: 1, message: "Room is full. Try Again".to_string()})
             };
         }, 
