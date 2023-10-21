@@ -5,7 +5,7 @@ use std::net::SocketAddr;
 #[allow(dead_code)]
 pub struct Room {
     room_name: String,
-    members: Vec<SocketAddr>,
+    pub members: Vec<SocketAddr>,
     room_size: usize,
 }
 

@@ -1,4 +1,4 @@
-use std::net::TcpStream;
+use std::net::{TcpStream, SocketAddr};
 use std::sync::MutexGuard;
 use std::collections::HashMap;
 use std::io::Write;
@@ -17,7 +17,7 @@ use std::str;
 pub enum RequestType {
     CreateRoom(String, String),
     JoinRoom(String, String),
-    SendMessage(String)
+    SendMessage(String, SocketAddr)
 }
 
 const MAX_ROOMS: usize = 10;
@@ -59,9 +59,9 @@ pub fn handle_request(
                 Err(()) => return Ok(Response { code: 1, message: "Room is full. Try Again".to_string()})
             };
         }, 
-        RequestType::SendMessage(message) => {
+        RequestType::SendMessage(message, addr) => {
             let message = format!("{}\n", message);
-            broadcast(message.as_bytes(), active_clients);
+            broadcast(message.as_bytes(), active_clients, addr, rooms);
             // let text = std::str::from_utf8(&buf[..bytes_read]).expect("did not get");
             // println!("{}", text);
             Ok(Response{ code: 0, message: "Successfully sent!".to_string()})
@@ -69,12 +69,30 @@ pub fn handle_request(
     }
 }
 
-fn broadcast(message: &[u8], mut active_clients: MutexGuard<'_, Vec<TcpStream>>) {
+fn broadcast(message: &[u8], mut active_clients: MutexGuard<'_, Vec<TcpStream>>, addr: SocketAddr, rooms: MutexGuard<'_, HashMap<std::string::String, Room>>) {
     // let mut active_clients = active_clients.lock().unwrap();
+    let mut broadcast_room: Option<&Room> = None;
+    let hashmap_room = rooms;
+    for room in hashmap_room.values(){
+        println!("{:?}", room.members);
+        if room.members.contains(&addr){
+            broadcast_room = Some(room);
+            break;
+        }
+    }
 
+    let broadcast_room = match broadcast_room {
+        Some(room,) => room,
+        None => panic!("Cannot find room")
+    };
     for client in &mut *active_clients {
-        println!("Broadcasting to client");
-        println!("Active client: {}", client.peer_addr().unwrap());
-        let _ = client.write(message);
+        if broadcast_room.members.contains(&client.peer_addr().unwrap()) {
+            println!("Broadcasting to client");
+            println!("Active client: {}", client.peer_addr().unwrap());
+            let _ = client.write(message);
+        }
     }
 }
+
+
+

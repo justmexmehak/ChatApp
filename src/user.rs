@@ -57,7 +57,7 @@ pub fn user_tcp() {
                 let mut input = String::new();
                 io::stdin().read_line(&mut input).expect("Failed to read from stdin");
                 // stream_clone.write(input.as_bytes()).expect("Failed to write to server");
-                let message = RequestType::SendMessage(input);
+                let message = RequestType::SendMessage(input, stream_clone.local_addr().unwrap());
                 stream_clone.write(&serialize(&message).unwrap()).unwrap();
             }
         });
